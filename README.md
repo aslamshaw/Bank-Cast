@@ -142,7 +142,7 @@ Response:
 
 Beeswarm plot showing feature influence on class "yes" prediction.
 
-![SHAP Summary Class 1](shap_summary_class1.png)
+<img src="shap_summary_class1.png" alt="SHAP Summary Class 1" width="500"/>
 
 🔥 **Top Influencers:**
 - `duration_bin_Very_Long`: Massive positive impact on predicting a subscription.
@@ -157,7 +157,7 @@ Beeswarm plot showing feature influence on class "yes" prediction.
 
 ## Plot 2: SHAP Feature Importance (Global View)
 
-![SHAP Summary All Classes](shap_summary_all_classes.png)
+<img src="shap_summary_all_classes.png" alt="SHAP Summary All Classes" width="500"/>
 
 🚀 **Dominant Features:**
 - `duration_bin_Very_Long`: Centerpiece of the model.
@@ -171,7 +171,7 @@ Beeswarm plot showing feature influence on class "yes" prediction.
 
 # 📉 Random Forest Feature Importance vs. SHAP
 
-![Feature Importance Comparison](feature_importance.png)
+<img src="feature_importance.png" alt="Feature Importance" width="500"/>
 
 | Feature              | SHAP Impact   | RF Importance   | Interpretation                         |
 |----------------------|---------------|------------------|-----------------------------------------|
