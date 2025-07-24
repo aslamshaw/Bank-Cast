@@ -1,6 +1,6 @@
-# Trait-Smith 🧬
+# Bank-Cast 📊
 
-A FastAPI-based personality prediction web service powered by a machine learning pipeline built from scratch. Trait-Smith processes behavioral inputs and predicts a user's personality type using a stacked ensemble of optimized classifiers.
+This project builds a **complete machine learning pipeline** to predict whether a customer will subscribe to a term deposit based on their interaction history in a marketing campaign.
 
 ---
 
@@ -19,6 +19,12 @@ A FastAPI-based personality prediction web service powered by a machine learning
   - `/health` endpoint for service status
 - **Serialized Stack**:
   - Trained model + label encoder saved via Pickle
+- **Model Explainability**:
+  - **SHAP values** for local/global insights
+  - Feature importance visualizations
+- **Deployment Ready**:
+  - Trained ensemble + encoders serialized with Pickle
+  - Modular codebase for easy experimentation
 
 ---
 
@@ -28,12 +34,15 @@ Use this format inside the markdown file (README.md), not inside a comment block
 But if you insist on keeping it here, use indentation:
 
     Trait-Smith/
-    ├── ml_pipeline.py            # Full data preprocessing pipeline
-    ├── train_and_save_model.py   # Training logic and model serialization
-    ├── app.py                    # FastAPI app with /predict route
-    ├── stacking_model.pkl        # Trained ensemble model (after training)
-    ├── label_encoder.pkl         # Label encoder for target class decoding
-    └── personality_dataset.csv   # Raw dataset
+    ├── ml_pipeline.py                   # Full data preprocessing pipeline
+    ├── train_and_save_model.py          # Training logic and model serialization
+    ├── app.py                           # FastAPI app with /predict route
+    ├── stacking_model.pkl               # Trained ensemble model (after training)
+    ├── label_encoder.pkl                # Label encoder for target class decoding
+    ├── feature_importance.png           # Bar chart of feature importances
+    ├── shap_summary_all_classes.png     # SHAP summary plot (all classes)
+    ├── shap_summary_all_classes.png     # SHAP subscribed class plot
+    └── bank_marketing.csv               # Raw marketing dataset
 
 ---
 
@@ -41,8 +50,8 @@ But if you insist on keeping it here, use indentation:
 
 ### 1. Clone the repo
 
-    git clone https://github.com/yourusername/Trait-Smith.git
-    cd Trait-Smith
+    git clone https://github.com/yourusername/Bank-Cast.git
+    cd Bank-Cast
 
 ### 2. Install requirements
 
@@ -50,9 +59,9 @@ But if you insist on keeping it here, use indentation:
 
 ### 3. Train the model
 
-Ensure `personality_dataset.csv` is available at the path hardcoded in `train_and_save_model.py`:
+Ensure `marketing_dataset.csv` is available at the path hardcoded in `train_and_save_model.py`:
 
-    os.path.join(os.path.dirname(__file__), 'personality_dataset.csv')
+    os.path.join(os.path.dirname(__file__), 'marketing_dataset.csv')
 
 Adjust the path if needed. Then run:
 
@@ -73,19 +82,28 @@ This will generate `stacking_model.pkl` and `label_encoder.pkl`.
 Send JSON like:
 
     {
-      "Time_spent_Alone": 4.5,
-      "Stage_fear": "Yes",
-      "Social_event_attendance": 3.0,
-      "Going_outside": 2.0,
-      "Drained_after_socializing": "No",
-      "Friends_circle_size": 5.0,
-      "Post_frequency": 1.0
+      "age": 45,
+      "job": "blue-collar",
+      "marital": "married",
+      "education": "secondary",
+      "default": "no",
+      "balance": 1200,
+      "housing": "yes",
+      "loan": "no",
+      "contact": "cellular",
+      "day": 5,
+      "month": "may",
+      "duration": 230,
+      "campaign": 2,
+      "pdays": -1,
+      "previous": 0,
+      "poutcome": "unknown"
     }
 
 Response:
 
     {
-      "prediction": "Extrovert"
+      "prediction": "no"
     }
 
 ### GET /health
