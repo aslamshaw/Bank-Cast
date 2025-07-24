@@ -112,23 +112,105 @@ Response:
 
 ---
 
-## 📌 Notes
+# 📈 Model Performance
 
-- Leave-One-Out Encoding applied only to high-cardinality categorical features
-- Mutual Information feature selector uses threshold tuning during CV
-- Input format is strict — any schema drift will cause prediction to fail
+## Model Comparison Table
 
----
+| Model           | Best F1-Weighted CV Score |
+|----------------|----------------------------|
+| Random Forest  | 0.879                      |
+| Gradient Boost | 0.888                      |
+| XGBoost        | 0.884                      |
+| SVM            | 0.865                      |
+| **Stacked Model** | **0.889 ± 0.001**           |
 
-## 🧠 Future Enhancements
 
-- Add input schema validation
-- Extend Swagger UI docs
-- Add model version tracking and experiment logging
-- Dockerize + CI/CD for production deployment
+## Stacked Model Classification Report
 
----
+| Class | Precision | Recall | F1-score | Support |
+|-------|-----------|--------|----------|---------|
+| no    | 0.92      | 0.98   | 0.95     | 7985    |
+| yes   | 0.67      | 0.37   | 0.47     | 1058    |
+| **Accuracy** |        |        | **0.90**  | **9043**   |
+| **Macro Avg** | 0.80 | 0.67   | 0.71     | 9043    |
+| **Weighted Avg** | 0.89 | 0.90   | 0.89     | 9043    |
 
-## 🛡️ License
 
-MIT License — free to use, modify responsibly.
+# 🧠 SHAP Analysis
+
+## Plot 1: SHAP Summary for Class 1 (Subscribed)
+
+Beeswarm plot showing feature influence on class "yes" prediction.
+
+![SHAP Summary Class 1](shap_summary_class1.png)
+
+🔥 **Top Influencers:**
+- `duration_bin_Very_Long`: Massive positive impact on predicting a subscription.
+- `duration_bin_Short`: Strongly reduces likelihood — short calls = low interest.
+- `month`: Clear seasonal effect; some months push harder than others.
+- `loan_exposure`: Loans seem to be a drag on subscribing.
+- `balance`: Higher balances add gentle upward pressure.
+
+🧊 **Lower Impact Features:**
+- `age`, `job`, `contact`, `poutcome`: Present, but minimal influence — scattered, closer to zero impact line.
+
+
+## Plot 2: SHAP Feature Importance (Global View)
+
+![SHAP Summary All Classes](shap_summary_all_classes.png)
+
+🚀 **Dominant Features:**
+- `duration_bin_Very_Long`: Centerpiece of the model.
+- `duration_bin_Short`, `month`: Still carry solid weight.
+- `loan_exposure`, `balance`: Strong supporters.
+
+🪁 **Low Signal Features:**
+- All `age_group_*`: Look important, but do nothing.
+- `previous`, `pdays`, `poutcome_unknown`: Background noise more than signal.
+
+
+# 📉 Random Forest Feature Importance vs. SHAP
+
+![Feature Importance Comparison](feature_importance.png)
+
+| Feature              | SHAP Impact   | RF Importance   | Interpretation                         |
+|----------------------|---------------|------------------|-----------------------------------------|
+| duration_bin_Very_Long | Top feature   | Mid-high rank    | SHAP detects local power                |
+| duration_bin_Short     | High (negative) | Mid-tier        | RF misses the directionality            |
+| balance                | Mid in SHAP   | #1 in RF         | Likely correlated, overvalued by RF     |
+| month                  | High in both  | High in both     | Reliable feature — seasonality rules    |
+| age                    | Low in SHAP   | #2 in RF         | Classic RF bait — correlation trap      |
+| contact_intensity      | Moderate      | Moderate         | General agreement                       |
+| job                    | Mid-low SHAP  | Mid RF           | Meh, not a dealbreaker                  |
+| loan_exposure          | Mid SHAP      | Mid RF           | Steady utility across the board         |
+| pdays, previous        | Low SHAP      | Inflated RF      | Likely overfitting in RF                |
+| age_group_*            | Bottom        | Useless          | Dead weight — safe to remove            |
+
+
+# 🪓 So What?
+
+- SHAP captures real signal, direction, and local patterns. RF just counts split frequency.
+- Favor SHAP-based pruning.
+- Retain: `duration_bin_*`, `month`, `loan_exposure`
+- Consider removing: `age`, `pdays`, `age_group_*`
+- Use permutation importance as a tie-breaker between correlated signals.
+
+
+# 📌 Notes
+
+- Feature selection is driven by **mutual information + SHAP insights**.
+- SHAP > Gini when it comes to interpreting what the model is *actually* doing.
+- API input must **match schema exactly** — missing or unexpected keys = failure.
+
+
+# 🔮 Future Enhancements
+
+- ✅ Add input schema validation with **Pydantic**
+- 📘 Extend Swagger / OpenAPI docs
+- 📊 Add experiment tracking & versioning
+- 🐳 Dockerize and build CI/CD for production
+
+
+# 🛡️ License
+
+MIT License — use, modify, deploy with intelligence and responsibility.
