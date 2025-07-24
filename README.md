@@ -33,7 +33,7 @@ This project builds a **complete machine learning pipeline** to predict whether 
 Use this format inside the markdown file (README.md), not inside a comment block.
 But if you insist on keeping it here, use indentation:
 
-    Trait-Smith/
+    Bank-Cast/
     ├── ml_pipeline.py                   # Full data preprocessing pipeline
     ├── train_and_save_model.py          # Training logic and model serialization
     ├── app.py                           # FastAPI app with /predict route
@@ -41,7 +41,7 @@ But if you insist on keeping it here, use indentation:
     ├── label_encoder.pkl                # Label encoder for target class decoding
     ├── feature_importance.png           # Bar chart of feature importances
     ├── shap_summary_all_classes.png     # SHAP summary plot (all classes)
-    ├── shap_summary_all_classes.png     # SHAP subscribed class plot
+    ├── shap_summary_class1.png          # SHAP subscribed class plot
     └── bank_marketing.csv               # Raw marketing dataset
 
 ---
