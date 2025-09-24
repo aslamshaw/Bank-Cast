@@ -29,6 +29,11 @@ class DataFrameImputer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """
+        Using copy of X_train is crucial for cross-validation. 
+        Each fold should get a fresh unmodified X_train when entering pipeline.
+        Without this copy, in-place modifications would leak across folds.
+        """
         X_ = X.copy()
         X_[self.num_cols_] = self.num_imputer_.transform(X_[self.num_cols_])
         X_[self.cat_cols_] = self.cat_imputer_.transform(X_[self.cat_cols_])
@@ -46,6 +51,12 @@ class FeatureEngineer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """
+        Defensive copy present, but technically unnecessary since X entering this
+        transformer is already a copy from DataFrameImputer. Leaving it ensures safety
+        if the transformer modifies X in-place, preventing subtle bugs.
+        Note: Memory overhead is slightly higher due to this redundant copy.
+        """
         X_ = X.copy()
         X_['duration_bin'] = pd.cut(X_['duration'], bins=self.duration_bins_,
                                     labels=['Short', 'Medium', 'Long', 'Very_Long'], include_lowest=True)
@@ -77,6 +88,10 @@ class LOOEncoder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """
+        Defensive copy again. Technically redundant because X is already a copy from upstream,
+        but ensures safety if transformer modifies X in-place. Minor memory overhead.
+        """
         X_ = X.copy()
         if self.columns_:
             X_[self.columns_] = self.encoder_.transform(X_[self.columns_])
@@ -109,6 +124,10 @@ class MIFeatureSelector(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """
+        No copy needed here because slicing X[self.selected_features_] already creates a new DataFrame.
+        Memory-efficient and safe. Original X is untouched.
+        """
         return X[self.selected_features_]
 
 
@@ -124,6 +143,7 @@ class AutoScaleEncode(BaseEstimator, TransformerMixin):
             ('scale_num', StandardScaler(), num_cols_),
             ('encode_cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False),
              cat_cols_)])
+
         self.pipeline_.fit(X, y)
 
         cat_encoder = self.pipeline_.named_transformers_['encode_cat']
@@ -132,5 +152,10 @@ class AutoScaleEncode(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """
+        Returns a new DataFrame based on pipeline output. No copy of X is required here.
+        Upstream defensive copies already guarantee CV safety.
+        Memory-efficient and safe.
+        """
         X_final = pd.DataFrame(self.pipeline_.transform(X), columns=self.all_cols, index=X.index)
         return X_final
